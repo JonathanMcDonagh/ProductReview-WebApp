@@ -18,38 +18,22 @@ mongoose.connect('mongodb://localhost:27017/productreviews_db', {
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
-// const products = [
-// 		{
-// 			name: "Product 1", 
-// 			image: "https://images-eu.ssl-images-amazon.com/images/G/02/kindle/journeys/NTg4MTg2YTQt/NTg4MTg2YTQt-ZGI5NWU3ZmMt-w379._SY304_CB409095718_.jpg",
-// 			description: "This is a really good product",
-// 			producturl: "https://www.amazon.co.uk/"	
-// 		},
-// 		{
-// 			name: "Product 2", 
-// 			image: "https://images-eu.ssl-images-amazon.com/images/G/02/kindle/journeys/ZjU0YzQ0Y2It/ZjU0YzQ0Y2It-NTAwNDA3Y2It-w372._SY232_CB428737032_.jpg",
-// 			description: "This is a really good product",
-// 			producturl: "https://www.amazon.co.uk/"	
-// 		},
-// 		{
-// 			name: "Product 3", 
-// 			image: "https://images-eu.ssl-images-amazon.com/images/G/02/kindle/merch/2020/campaign/91874378/uk-v3-gateway-dashboard-card-758x608._SY608_CB429036539_.jpg", 	
-// 			description: "This is a really good product",
-// 			producturl: "https://www.amazon.co.uk/"	
-// 		}
-// ];
 
 app.get("/", function(req, res){
 	res.render("landing")
 });
 
+
+// ********************
+// PRODUCT ROUTES
+// ********************
 app.get("/products", function(req, res){	
 	Product.find({},function(err, allProducts){
 		if(err){
 			console.log(err)
 			console.log("Something went wrong");
 		} else {
-			res.render("index", {products: allProducts});
+			res.render("products/index", {products: allProducts});
 		}
 	});
 });
@@ -76,7 +60,7 @@ app.post("/products", function(req, res){
 });
 
 app.get("/products/new", function(req, res){
-	res.render("new.ejs");
+	res.render("products/new.ejs");
 });
 
 // Get product based on ID
@@ -86,10 +70,44 @@ app.get("/products/:id", function(req, res){
 		if(err) {
 			console.log(err)
 		} else {
-			res.render("show", {product: foundProduct});
+			res.render("products/show", {product: foundProduct});
 		}
 	});
 });
+
+// ********************
+// COMMENT ROUTES
+// ********************
+app.get("/products/:id/comments/new", function(req, res){
+	Product.findById(req.params.id, function(err, product){
+		if(err){
+			console.log(err);
+		} else {
+			res.render("comments/new", {product: product});
+		}
+	})
+});
+
+app.post("/products/:id/comments", function(req, res){
+	// Lookup product using ID
+	Product.findById(req.params.id, function(err, product){
+		if(err){
+			console.log(err);
+			res.redirect("/products");
+		} else {
+			Comment.create(req.body.comment, function(err, comment){
+				if(err){
+					console.log(err);
+				} else {
+					product.comments.push(comment);
+					product.save();
+					res.redirect("/products/" + product._id);
+				}
+			});
+		}
+	});
+});
+
 
 app.listen(process.env.PORT || 3000, process.env.IP, function(){
 	console.log("Server has started");
