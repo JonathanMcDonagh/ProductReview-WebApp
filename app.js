@@ -15,6 +15,7 @@ mongoose.connect('mongodb://localhost:27017/productreviews_db', {
 .then(() => console.log('Connected to DB!'))
 .catch(error => console.log(error.message));
 
+app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
