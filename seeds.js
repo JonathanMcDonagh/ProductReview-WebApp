@@ -26,12 +26,12 @@ const data = [
  
 function seedDB(){
    //Remove all products
-   Product.remove({}, function(err){
+   Product.deleteMany({}, function(err){
         if(err){
             console.log(err);
         }
         console.log("removed products!");
-        Comment.remove({}, function(err) {
+        Comment.deleteMany({}, function(err) {
             if(err){
                 console.log(err);
             }
