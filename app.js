@@ -14,7 +14,7 @@ const commentRoutes 		= require("./routes/comments"),
 	  productRoutes  	= require("./routes/products"),
 	  indexRoutes 			= require("./routes/index");
 
-seedDB();
+// seedDB();
 mongoose.connect('mongodb://localhost:27017/productreviews_db', {
   useNewUrlParser: true,
   useUnifiedTopology: true

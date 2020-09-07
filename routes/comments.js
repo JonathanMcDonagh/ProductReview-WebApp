@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const product = require("../models/product");
+const Product = require("../models/product");
 const Comment = require("../models/comment");
 
 
 // Comments New
 router.get("/new", isLoggedIn, function(req, res){
-	product.findById(req.params.id, function(err, product){
+	Product.findById(req.params.id, function(err, product){
 		if(err){
 			console.log(err);
 		} else {
@@ -18,7 +18,7 @@ router.get("/new", isLoggedIn, function(req, res){
 // Comments Create
 router.post("/", isLoggedIn, function(req, res){
 	// Lookup product using ID
-	product.findById(req.params.id, function(err, product){
+	Product.findById(req.params.id, function(err, product){
 		if(err){
 			console.log(err);
 			res.redirect("/products");
@@ -27,8 +27,14 @@ router.post("/", isLoggedIn, function(req, res){
 				if(err){
 					console.log(err);
 				} else {
+					// Add username and id to comment
+					comment.author.id = req.user._id;
+					comment.author.username = req.user.username;
+					// save comment
+					comment.save();
 					product.comments.push(comment);
 					product.save();
+					console.log(comment);
 					res.redirect("/products/" + product._id);
 				}
 			});
