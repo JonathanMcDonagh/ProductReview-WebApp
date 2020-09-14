@@ -2,10 +2,11 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const Product = require("../models/product");
 const Comment = require("../models/comment");
+const middleware = require("../middleware");
 
 
 // Comments New
-router.get("/new", isLoggedIn, function(req, res){
+router.get("/new", middleware.isLoggedIn, function(req, res){
 	Product.findById(req.params.id, function(err, product){
 		if(err){
 			console.log(err);
@@ -16,7 +17,7 @@ router.get("/new", isLoggedIn, function(req, res){
 });
 
 // Comments Create
-router.post("/", isLoggedIn, function(req, res){
+router.post("/", middleware.isLoggedIn, function(req, res){
 	// Lookup product using ID
 	Product.findById(req.params.id, function(err, product){
 		if(err){
@@ -42,12 +43,40 @@ router.post("/", isLoggedIn, function(req, res){
 	});
 });
 
-//Middleware
-function isLoggedIn(req, res, next){
-	if(req.isAuthenticated()){
-		return next();
-	}
-	res.redirect("/login");
-}
+// EDIT Comment
+router.get("/:comment_id/edit", middleware.checkCommentOwnership, function(req, res){
+	Comment.findById(req.params.comment_id, function(err, foundComment){
+		if(err){
+			res.redirect("back");
+		} else {
+			res.render("comments/edit", {product_id: req.params.id, comment: foundComment});	
+		}
+	});
+});
+
+// UPDATE Comment
+router.put("/:comment_id", middleware.checkCommentOwnership, function(req, res){
+	Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function(err, updatedComment){
+		if(err){
+			console.log(err);
+			res.redirect("back");
+		} else {
+			res.redirect("/products/" + req.params.id);
+		}
+	});
+});
+
+// Destory Product Route
+router.delete("/:comment_id", middleware.checkCommentOwnership, function(req, res){
+	Comment.findByIdAndRemove(req.params.comment_id, function(err){
+		if(err){
+			console.log(err);
+			res.redirect("back");
+		} else {
+			res.redirect("/products/" + req.params.id);
+		}
+	});
+});
+
 
 module.exports = router;

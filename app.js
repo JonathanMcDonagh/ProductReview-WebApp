@@ -4,6 +4,7 @@ const express 	 			= require("express"),
 	  mongoose 	 			= require("mongoose"),
 	  passport   			= require("passport"),
 	  LocalStrategy 		= require("passport-local"),
+	  methodOverride 		= require("method-override"),
 	  passportLocalMongoose = require("passport-local-mongoose"),
 	  Product 	 			= require("./models/product"),
 	  Comment	 			= require("./models/comment"),
@@ -15,7 +16,7 @@ const commentRoutes 		= require("./routes/comments"),
 	  indexRoutes 			= require("./routes/index");
 
 // seedDB();
-mongoose.connect('mongodb://localhost:27017/productreviews_db', {
+mongoose.connect('mongodb://localhost:27017/productreviews_db_final', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -24,6 +25,7 @@ mongoose.connect('mongodb://localhost:27017/productreviews_db', {
 
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
 
 
